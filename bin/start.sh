@@ -13,8 +13,7 @@ sinaurl="http://hq.sinajs.cn/list="
 context=$(dirname $0)
 short_scret=$1
 codes=$context"/codes"
-refreshGap=3s
-
+refreshGap=1
 
 # curl one stock from sina, save cache in $result
 getStock()
@@ -123,14 +122,23 @@ printStock()
 # main entrance, execute every 5s
 main()
 {
-  while (true)
-  do
+   if [ -t 0 ]; then
+     SAVED_STTY="`stty --save`"
+     stty -echo -icanon -icrnl time 0 min 0
+   fi
+   keypress=''
+   
+   while [ "x$keypress" = "x" ]; do
    readStock
    printStock
+   keypress="`cat -v`" 
    sleep $refreshGap
-  done
+   done
+
+   if [ -t 0 ]; then stty "$SAVED_STTY"; fi
 }
 
 # main entrance
 main
+reset
 
