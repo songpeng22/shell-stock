@@ -1,4 +1,4 @@
-#!/bin/sh 
+#!/bin/bash
 
 # Author: vicklin123@gmail.com
 # Date: 2015-07-20 14:07:54
@@ -192,6 +192,13 @@ printStockSimple()
  fi
 }
 
+function trigger()
+{
+    echo -en "SIGINT.\n"
+    reset
+    exit
+}
+trap trigger SIGINT
 
 # main entrance, execute every 5s
 main()
