@@ -118,6 +118,80 @@ printStock()
   done
  fi
 }
+printStockSimple()
+{
+ clear
+ if [ -z $short_scret ]; then
+  echo "short."
+  for r in $result
+  do
+   echo $r | awk '{
+	len=split(substr($r,index($r,"=")+2,100),arr,",");
+		name=substr(arr[1],0,16)
+		open=substr(arr[2],0,7)
+	if(open=="0.00"){ #check if is suspended
+		open="---"
+		old="---"
+		cur="---"
+		top="---"
+		bottom="---"
+		gap="---"
+	} else {
+		old=substr(arr[3],0,7)
+		cur=substr(arr[4],0,7)
+		top=substr(arr[5],0,7)
+		bottom=substr(arr[6],0,7)
+		if(old=="old"){
+			gap="%"
+		} else {
+			gap=substr((cur-old)/old*100,0,7)
+		}
+	}
+	printf("%s\t",name)
+
+	if (gap>0) {
+		printf("%s",cur)
+	} else {
+		printf("%s",cur)
+	}
+
+	print""
+   }'
+  done
+ else
+  echo -en "not short.\n"
+  for r in $result
+  do
+   echo $r | awk '{
+	len=split(substr($r,index($r,"=")+2,100),arr,",");
+		open=substr(arr[2],0,7)
+	if(open=="0.00"){ #check if is suspended
+		cur="---"
+		gap="---"
+	} else {
+		old=substr(arr[3],0,7)
+		cur=substr(arr[4],0,7)
+		gap=substr((cur-old)/old*100,0,7)
+	}
+
+	if (gap>0) {
+		printf("\033[31m%s\033[0m\t",cur)
+	} else {
+		printf("\033[32m%s\033[0m\t",cur)
+	}
+
+	if (gap>=0) {
+		printf("\033[31m%s\033[0m\t",gap)
+	} else if(gap!="-nan"){
+		printf("\033[32m%s\033[0m\t",gap)
+	}
+
+	print"\n"
+   }'
+  done
+ fi
+}
+
 
 # main entrance, execute every 5s
 main()
@@ -130,7 +204,7 @@ main()
    
    while [ "x$keypress" = "x" ]; do
    readStock
-   printStock
+   printStockSimple
    keypress="`cat -v`" 
    sleep $refreshGap
    done
