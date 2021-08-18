@@ -13,7 +13,7 @@ sinaurl="http://hq.sinajs.cn/list="
 context=$(dirname $0)
 short_scret=$1
 codes=$context"/codes"
-refreshGap=1
+refreshGap=2
 
 # curl one stock from sina, save cache in $result
 getStock()
@@ -192,14 +192,25 @@ printStockSimple()
  fi
 }
 
-function trigger()
+# not work in this script
+keyPressed()
 {
-    echo -en "SIGINT.\n"
+    read -n 1 < /dev/tty
+
+    # send SIGINT to main shell and exit self
+    kill -SIGINT $$
+    exit
+}
+
+trigger()
+{
     reset
+    echo -en "trigger:SIGINT.\n"
     exit
 }
 trap trigger SIGINT
 
+#keyPressed &
 # main entrance, execute every 5s
 main()
 {
@@ -222,4 +233,4 @@ main()
 # main entrance
 main
 reset
-
+echo -en "exit from main.\n"
